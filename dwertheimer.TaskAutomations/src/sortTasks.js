@@ -54,10 +54,13 @@ export async function openTasksToTop(heading: string = '## Tasks:\n', separator:
 
   let sweptTasks: ReturnStatus
   if (Editor.type === 'Calendar') {
+    //$FlowFixMe
     sweptTasks = await sweepNote(Editor.note, false, true, false, false, true, true, 'move')
   } else {
+    //$FlowFixMe
     sweptTasks = await sweepNote(Editor.note, false, true, false, true, true, true, 'move')
   }
+  //$FlowIgnore
   console.log(`openTasksToTop(): ${sweptTasks.taskArray.length} open tasks:`)
   console.log(JSON.stringify(sweptTasks))
   if (sweptTasks.taskArray?.length) {
@@ -267,7 +270,7 @@ async function writeOutTasks(
   tasks: any,
   drawSeparators = false,
   withHeadings = false,
-  withSubheadings = null
+  withSubheadings = null,
 ): Promise<void> {
   const headings = {
     open: 'Open Tasks',
@@ -312,7 +315,7 @@ async function wantSubHeadings() {
   return (await showMessageYesNo(`Include sort field subheadings in the output?`)) === 'Yes'
 }
 
-showMessageYesNo  // @jgclark comment: this looks strange!
+showMessageYesNo // @jgclark comment: this looks strange!
 
 export default async function sortTasks(
   withUserInput: boolean = true,
@@ -320,7 +323,7 @@ export default async function sortTasks(
   withHeadings: boolean | null = null,
   withSubHeadings: boolean | null = null,
 ) {
-    if (Editor.note == null) {
+  if (Editor.note == null) {
     return // if no note, stop. Should resolve 2 flow errors below, but only resolves 1 :-(
   }
   console.log(`\n\nStarting sortTasks(${String(withUserInput)},${JSON.stringify(sortFields)},${String(withHeadings)}):`)
@@ -352,8 +355,9 @@ export default async function sortTasks(
   await deleteExistingTasks(Editor.note, sortedTasks, MAKE_BACKUP) // need to do this before adding new lines to preserve line numbers
   console.log(`\tFinished deleteExistingTasks, now running writeOutTasks`)
 
-  await writeOutTasks(Editor.note, sortedTasks, false, printHeadings, printSubHeadings ? sortField1 : '')
-  console.log(`\tFinished writeOutTasks, now finished`)
-
+  if (Editor.note) {
+    await writeOutTasks(Editor.note, sortedTasks, false, printHeadings, printSubHeadings ? sortField1 : '')
+    console.log(`\tFinished writeOutTasks, now finished`)
+  }
   console.log('Finished sortTasks()!')
 }
