@@ -52,16 +52,13 @@ export async function openTasksToTop(heading: string = '## Tasks:\n', separator:
   //FIXME: need to make this work
   // MAYBE ADD A QUESTION IN THE FLOW FOR WHICH TASKS TO MOVE
 
-  let sweptTasks: ReturnStatus
+  let sweptTasks: ReturnStatus = { msg: '', status: '', taskArray: [], tasks: 0 }
   if (Editor.type === 'Calendar') {
-    //$FlowFixMe
-    sweptTasks = await sweepNote(Editor.note, false, true, false, false, true, true, 'move')
+    if (Editor.note) sweptTasks = await sweepNote(Editor.note, false, true, false, false, true, true, 'move')
   } else {
-    //$FlowFixMe
-    sweptTasks = await sweepNote(Editor.note, false, true, false, true, true, true, 'move')
+    if (Editor.note) sweptTasks = await sweepNote(Editor.note, false, true, false, true, true, true, 'move')
   }
-  //$FlowIgnore
-  console.log(`openTasksToTop(): ${sweptTasks.taskArray.length} open tasks:`)
+  if (sweptTasks) console.log(`openTasksToTop(): ${sweptTasks?.taskArray?.length || 0} open tasks:`)
   console.log(JSON.stringify(sweptTasks))
   if (sweptTasks.taskArray?.length) {
     if (sweptTasks.taskArray[0].content === Editor.title) {
@@ -357,7 +354,8 @@ export default async function sortTasks(
 
   if (Editor.note) {
     await writeOutTasks(Editor.note, sortedTasks, false, printHeadings, printSubHeadings ? sortField1 : '')
-    console.log(`\tFinished writeOutTasks, now finished`)
   }
+  console.log(`\tFinished writeOutTasks, now finished`)
+
   console.log('Finished sortTasks()!')
 }
