@@ -50,20 +50,29 @@ describe('paragraphDetail', () => {
     expect(pd.isTask(noteWithTasks.paragraphs[1])).toBe(true)
     expect(pd.isTask(noteWithOutTasks.paragraphs[1])).toBe(false)
   })
+
+  test('dwertheimer.TaskAutomations - paragraphDetail.initializeMetadata set metadata', () => {
+    let meta = pd.initializeMetaData(noteWithTasks.paragraphs)
+    expect(meta.length).toEqual(noteWithTasks.paragraphs.length)
+  })
+
   test('dwertheimer.TaskAutomations - paragraphDetail.setHeadings sets heading of top-most parent', () => {
     // setHeadings writing heading value to the original object, so use cloneDeep to work on a new copy
-    const afterHeadingSet = pd.setHeadings(_.cloneDeep(noteWithTasks).paragraphs)
-    expect(afterHeadingSet[1].heading).toEqual(noteWithTasks.paragraphs[0].content)
+    let meta = pd.initializeMetaData(noteWithTasks.paragraphs)
+    const metaAfterHeadingSet = pd.setHeadings(_.cloneDeep(noteWithTasks).paragraphs, meta)
+    expect(metaAfterHeadingSet[1].heading).toEqual(noteWithTasks.paragraphs[0].content)
   })
   test('dwertheimer.TaskAutomations - paragraphDetail.flagParagraphsForSweeping', () => {
-    const afterSweeping = pd.flagParagraphsForSweeping(_.cloneDeep(noteWithTasks).paragraphs)
-    expect(afterSweeping[0].sweep).toBe(undefined)
-    expect(afterSweeping[15].sweep).toBe(true)
-    expect(afterSweeping[3].heading).toBe('TestTitle')
+    const metaAfterSweeping = pd.flagParagraphsForSweeping(_.cloneDeep(noteWithTasks).paragraphs)
+    expect(metaAfterSweeping[0].sweep).toBe(false)
+    expect(metaAfterSweeping[15].sweep).toBe(true)
+    expect(metaAfterSweeping[3].heading).toBe('TestTitle')
   })
+
   test('dwertheimer.TaskAutomations - paragraphDetail.flagParagraphsForSweeping do not include Note Title', () => {
+    let meta = pd.initializeMetaData(noteWithTasks.paragraphs)
     const afterSweeping2 = pd.flagParagraphsForSweeping(_.cloneDeep(noteWithTasks).paragraphs, { includeTitle: false })
-    expect(afterSweeping2[0].sweep).toBe(undefined)
+    expect(afterSweeping2[0].sweep).toBe(false)
     expect(afterSweeping2[15].sweep).toBe(true)
     console.log(afterSweeping2[3])
     expect(afterSweeping2[3].heading).toBe('')
@@ -77,7 +86,8 @@ describe('paragraphDetail', () => {
         { type: 'text', content: '\t\t\t\t\tfive', indents: 0 },
       ],
     }
-    const testResults = pd.setTextIndents(textCheckText.paragraphs)
+    let meta = pd.initializeMetaData(textCheckText.paragraphs)
+    const testResults = pd.setTextIndents(textCheckText.paragraphs, meta)
     expect(testResults[0].indents).toBe(0)
     expect(testResults[1].indents).toBe(1)
     expect(testResults[2].indents).toBe(0)

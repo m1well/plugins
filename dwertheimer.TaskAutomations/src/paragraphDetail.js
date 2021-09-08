@@ -9,34 +9,35 @@ export const noteHasTasks = (note) => note.paragraphs.some(isTask)
 /**
  * @description Adds the heading of missing #h1 to items at the root level
  * @param {[TParagraph]} paragraphs
- * @returns {TNote} note
+ * @param {[Metadata]} meta - extra paragraph metadata (b/c paragraphs is readonly) - tracks paragraphs
+ * @returns {[Metadata]} meta
  */
-export function setHeadings(paragraphs) {
+export function setHeadings(paragraphs: [TParagraph], meta: [Metadata]): [Metadata] {
   const title = paragraphs[0].content
-  const paras = paragraphs.map((p, i) => {
-    if (i > 0 && p.heading === '') p.heading = title
-    return { ...p }
+  const paras = paragraphs.forEach((p, i) => {
+    if (i > 0 && p.heading === '') {
+      meta[i].heading = title
+    }
   })
-  return paras
+  return meta
 }
 
 /**
  * @description Adds the indents of tabs to text items
  * @param {[TParagraph]} paragraphs
- * @returns {TNote} note
+ * @param {[Metadata]} meta - extra paragraph metadata (b/c paragraphs is readonly) - tracks paragraphs
+ * @returns {[Metadata]} meta
  */
-export function setTextIndents(paragraphs) {
-  const paras = paragraphs.map((p, i) => {
+export function setTextIndents(paragraphs: [TParagraph], meta: [Metadata]): [Metadata] {
+  const paras = paragraphs.forEach((p, i) => {
     if (p.type === 'text' && p.content.length) {
       let numOfTabs = 0,
         start = 0
       while (p.content.charAt(start++) === '\t') numOfTabs++
-      p.indents = numOfTabs
-      return p
+      meta[i].indents = numOfTabs
     }
-    return p
   })
-  return paras
+  return meta
 }
 
 /**
@@ -59,12 +60,16 @@ export function comparePredecessor(paragraph, lastSwept) {
   return null
 }
 
+type Metadata = { indents: number, headingLevel: number, heading: string, sweep: boolean }
+export const initializeMetaData = (paragraphs): [Metadata] =>
+  paragraphs.map((p) => ({ indents: p.indents, headingLevel: p.headingLevel, heading: p.heading, sweep: false }))
+
 /**
  * @description Set the .sweep flag on paragraphs to be swept
  * @param { [TParagraph]} paragraphs
  * @param { } options -- see defaults below
  */
-export function flagParagraphsForSweeping(paragraphs, options = {}) {
+export function flagParagraphsForSweeping(paragraphs: [TParagraph], options: { [string]: any } = {}) {
   const defaults = {
     sweepSeparators: true,
     includeTitle: true,
@@ -72,25 +77,25 @@ export function flagParagraphsForSweeping(paragraphs, options = {}) {
     setTextIndents: true,
   }
   const opts = { ...defaults, ...options }
-  let paras = paragraphs
+  let meta = initializeMetaData(paragraphs) // tracks to .paragraphs and adds metadata
   if (opts.includeTitle) {
-    paras = setHeadings(paras)
+    meta = setHeadings(paragraphs, meta)
   }
   if (opts.setTextIndents) {
-    paras = setTextIndents(paras)
+    meta = setTextIndents(paragraphs, meta)
   }
-  //loop through paras in reverse order
-  for (let i = paras.length - 1; i >= 0; i--) {
-    const p = paras[i]
-    const lastSwept = { paragraph: null }
+  //loop through paragraphs in reverse order
+  for (let i = paragraphs.length - 1; i >= 0; i--) {
+    const p = paragraphs[i]
+    const lastSwept = { paragraph: null, indents: 0 }
     if (opts.ignore.includes(p.type)) continue
     const sweepThis = lastSwept.paragraph && comparePredecessor(p, lastSwept)
     if (isOpenTask(p) || sweepThis) {
-      paras[i].sweep = true
+      meta[i].sweep = true
       lastSwept.paragraph = p
     }
   }
-  return paras
+  return meta
 }
 
 // export function tbd(note) {
