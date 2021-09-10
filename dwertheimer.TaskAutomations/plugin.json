@@ -1,5 +1,5 @@
 {
-  "noteplan.minAppVersion": "3.0.23", 
+  "noteplan.minAppVersion": "3.1.0", 
   "plugin.id": "dwertheimer.TaskAutomations", 
   "plugin.name": "✅ Task Automations", 
   "plugin.description": "Functions for handling Tasks", 
