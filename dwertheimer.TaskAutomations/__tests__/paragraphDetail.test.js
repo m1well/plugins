@@ -118,17 +118,31 @@ test('dwertheimer.TaskAutomations - paragraphDetail.comparePredecessor meta.hasC
 
 test('dwertheimer.TaskAutomations - paragraphDetail.flagParagraphsForSweeping', () => {
   const metaAfterSweeping = pd.flagParagraphsForSweeping(_.cloneDeep(noteWithTasks).paragraphs)
-  expect(metaAfterSweeping[0].sweep).toBe(false)
+  expect(metaAfterSweeping[0].sweep).toBe(false) //FIXME: here's where I am
   expect(metaAfterSweeping[15].sweep).toBe(true)
   expect(metaAfterSweeping[3].heading).toBe('TestTitle')
 })
 
+// Commenting out because API changes should make this irrelevant
+// test('dwertheimer.TaskAutomations - paragraphDetail.flagParagraphsForSweeping do not include Note Title', () => {
+//   let meta = pd.initializeMetaData(noteWithTasks.paragraphs)
+//   const afterSweeping2 = pd.flagParagraphsForSweeping(_.cloneDeep(noteWithTasks).paragraphs, { includeTitle: false })
+//   expect(afterSweeping2[0].sweep).toBe(false)
+//   expect(afterSweeping2[15].sweep).toBe(true)
+//   expect(afterSweeping2[3].heading).toBe('')
+// })
+
+// NOTE: This test will eventually fail because the API changes have made this irrelevant
 test('dwertheimer.TaskAutomations - paragraphDetail.flagParagraphsForSweeping do not include Note Title', () => {
   let meta = pd.initializeMetaData(noteWithTasks.paragraphs)
-  const afterSweeping2 = pd.flagParagraphsForSweeping(_.cloneDeep(noteWithTasks).paragraphs, { includeTitle: false })
-  expect(afterSweeping2[0].sweep).toBe(false)
-  expect(afterSweeping2[15].sweep).toBe(true)
-  expect(afterSweeping2[3].heading).toBe('')
+  let afterSweeping2 = pd.flagParagraphsForSweeping(_.cloneDeep(noteWithTasks).paragraphs, { setTextIndents: true })
+  expect(afterSweeping2[6].indents).toEqual(1)
+  expect(afterSweeping2[7].indents).toEqual(0)
+  expect(afterSweeping2[12].indents).toEqual(3)
+  afterSweeping2 = pd.flagParagraphsForSweeping(_.cloneDeep(noteWithTasks).paragraphs, { setTextIndents: false })
+  expect(afterSweeping2[6].indents).toEqual(0)
+  expect(afterSweeping2[7].indents).toEqual(0)
+  expect(afterSweeping2[12].indents).toEqual(0)
 })
 
 // FOR REFERENCE:

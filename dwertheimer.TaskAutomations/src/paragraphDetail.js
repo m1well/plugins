@@ -111,9 +111,10 @@ export function flagParagraphsForSweeping(paragraphs: [TParagraph], options: { [
   }
   const opts = { ...defaults, ...options }
   let meta = initializeMetaData(paragraphs) // tracks to .paragraphs and adds metadata
-  if (opts.includeTitle) {
-    meta = setHeadings(paragraphs, meta)
-  }
+  // the following should be irrelevant with new API changes
+  // if (opts.includeTitle) {
+  //   meta = setHeadings(paragraphs, meta)
+  // }
   if (opts.setTextIndents) {
     meta = setTextIndents(paragraphs, meta)
   }
