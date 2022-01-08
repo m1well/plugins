@@ -18,6 +18,7 @@ export function JSP(obj, prettyPrint = 2): string {
   return JSON.stringify(fullObj, null, prettyPrint ?? null)
 }
 
+
 /**
  * Create a list of the properties of an object, including inherited properties (which are not typically visible in JSON.stringify)
  * @author @dwertheimer
